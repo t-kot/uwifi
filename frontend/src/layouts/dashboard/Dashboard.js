@@ -1,9 +1,38 @@
 import React, { Component } from 'react'
-import { uport } from '../../util/connectors';
+import * as MNID from 'mnid';
+import { uport, web3 } from '../../util/connectors';
+import { abi, addressLocation } from '../../contract';
 
 function formatEpoch(epoch) {
   const d = new Date(epoch * 1000);
   return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${d.getMinutes()}`;
+}
+
+function waitForMined(txHash, response, pendingCb, successCb) {
+  if (response.blockNumber) {
+    successCb()
+  } else {
+    pendingCb()
+    pollingLoop(txHash, response, pendingCb, successCb)
+  }
+}
+
+function pollingLoop(txHash, response, pendingCb, successCb) {
+  setTimeout(() => {
+    web3.eth.getTransaction(txHash, (err, res) => {
+      if (err) throw err
+      if (res === null) {
+        res = { blockNumber: null }
+      }
+      waitForMined(txHash, res, pendingCb, successCb)
+    })
+  }, 1000)
+}
+
+function prepareContract() {
+  const contractABI = web3.eth.contract(abi)
+  const contractObj = contractABI.at(addressLocation)
+  return contractObj
 }
 
 class Dashboard extends Component {
@@ -11,21 +40,49 @@ class Dashboard extends Component {
     super(props)
     authData = this.props
     console.log(authData);
+    console.log('decoded', MNID.decode(this.props.authData.address))
 
     this.buyTicket = this.buyTicket.bind(this)
 
     const tickets = this.props.authData.verified.map(elem => elem.claim.uWifiTicket).filter(ticket => ticket != null)
-    this.state = { tickets }
+    this.state = {
+      ticket: {
+        loading: true,
+        usable: false,
+      },
+      tickets,
+    }
+    this.contract = prepareContract()
+  }
+
+  componentDidMount() {
+    this.contract.ticketUsable({}, (err, res) => {
+      console.log('ticketUsable', res)
+      const newState = Object.assign({}, this.state, {
+        ticket: {
+          loading: false,
+          usable: res,
+        }
+      })
+      this.setState(newState)
+    })
   }
 
   render() {
-    const { tickets } = this.state
-    const itmes = [
-      {
-        plan: '30 Minutes Ticket (max 500MB)',
-        price: '1 UWF',
-      },
-    ];
+    const { ticket } = this.state
+    let ticketNode;
+    if (ticket.loading) {
+      ticketNode = <p>Loading...</p>
+    } else if (ticket.usable) {
+      ticketNode = <p>You already have a permission for accessing to network</p>
+    } else {
+      ticketNode = (
+        <div>
+          <p>You do not have permission.</p>
+          <button className="pure-button pure-button-primary" onClick={() => this.buyTicket()}>Buy Ticket (0.01 ETH for 1 day)</button>
+        </div>
+      )
+    }
     return(
       <main className="container">
         <div className="pure-g">
@@ -34,48 +91,8 @@ class Dashboard extends Component {
             <p><strong>Congratulations {this.props.authData.name}!</strong> If you're seeing this page, you've logged in with UPort successfully.</p>
           </div>
           <div className="pure-u-1-1">
-            <h1>Buy Tickets</h1>
-            <div>
-              <table className="pure-table pure-table-bordered">
-                <thead>
-                  <tr>
-                    <th>Plan</th>
-                    <th>Price</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  { itmes.map(item => (
-                    <tr key={item.plan}>
-                      <td>{item.plan}</td>
-                      <td>{item.price}</td>
-                      <td><button className="pure-button pure-button-primary" onClick={() => this.buyTicket()}>Buy</button></td>
-                    </tr>
-                  )) }
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div className="pure-u-1-1">
-            <h1>Available Tickets</h1>
-            <div>
-              <table className="pure-table pure-table-bordered">
-                <thead>
-                  <tr>
-                    <th>Available </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    tickets.map((ticket, i) => (
-                      <tr key={i}>
-                        <td>{formatEpoch(ticket.startsAt)} - {formatEpoch(ticket.endsAt)}</td>
-                      </tr>
-                    ))
-                  }
-                </tbody>
-              </table>
-            </div>
+            <h1>Tickets</h1>
+            {ticketNode}
           </div>
         </div>
       </main>
@@ -83,19 +100,20 @@ class Dashboard extends Component {
   }
 
   buyTicket() {
-    const now = Math.floor(Date.now() / 1000);
-    const expiresIn = 30 * 60;
-    const endsAt = now + expiresIn;
-    const payload = { startsAt: now, endsAt };
-    
-    uport.attestCredentials({
-      sub: this.props.authData.address,
-      claim: { 'uWifiTicket': payload },
-    }).then(res => {
-      const { tickets } = this.state
-      tickets.push(payload)
-      this.setState({ tickets })
-    });
+    console.log('will buy ticket')
+    this.contract.buyTicket({ value: web3.toWei(0.0001) }, (err, txHash) => {
+      console.log(txHash)
+      waitForMined(
+        txHash,
+        { blockNumber: null }, 
+        function () {
+          console.log('pending')
+        },
+        function () {
+          console.log('success')
+        },
+      )
+    })
   }
 }
 
