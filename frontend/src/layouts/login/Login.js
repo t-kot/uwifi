@@ -1,10 +1,13 @@
 import React, { Component } from 'react'
+import { browserHistory } from 'react-router'
 import { uportSetting } from '../../util/connectors';
 import { Connect, SimpleSigner } from 'uport-connect'
+import { connect } from 'react-redux'
 import './Login.css'
+import '../../user/ui/loginbutton/LoginButtonActions';
+import { userLoggedIn } from '../../user/ui/loginbutton/LoginButtonActions';
 
 const QRCode = require('qrcode.react');
-const qrcode = require('qrcode-terminal');
 
 class Login extends Component {
   constructor(props, { authData }) {
@@ -31,7 +34,9 @@ class Login extends Component {
     uport.requestCredentials({
       requested: ['name', 'avatar', 'phone', 'country'],
     }).then(credentials => {
-      console.log(credentials);
+      this.props.dispatch(userLoggedIn(credentials))
+
+      return browserHistory.push('/')
     });
   }
 
@@ -67,4 +72,4 @@ class Login extends Component {
   }
 }
 
-export default Login
+export default connect()(Login)
