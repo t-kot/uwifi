@@ -70,19 +70,26 @@ class Login extends Component {
             <div className='qrcode'>
               {(() => {
                 if (this.state.uportURI.length) {
-                  return <QRCode value={this.state.uportURI} size={200} />;
+                  return (
+                    <div>
+                        <QRCode value={this.state.uportURI} size={200} />
+                        <p className=''>uPortアプリでQRコードを読み取ってください。</p>
+                    </div>
+                  ); 
+                } else {
+                    return (
+                        <div className='login-button'>
+                            <a
+                                className="button-success pure-button button-lg"
+                                href={this.state.uportURI}
+                                onClick={this.onRequestCredentials}
+                            >
+                                uPortで認証する
+                            </a>
+                        </div>
+                    )
                 }
               })()}
-            </div>
-
-            <div className='login-button'>
-              <a
-                className="button-success pure-button button-lg"
-                href={this.state.uportURI}
-                onClick={this.onRequestCredentials}
-              >
-                uPortで認証する
-              </a>
             </div>
           </div>
         </div>
