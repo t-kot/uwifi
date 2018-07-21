@@ -45,16 +45,27 @@ contract UWifiCore {
     return tickets[msg.sender].expiration > block.timestamp;
   }
 
+  function remainingTime() public view returns (uint256) {
+    if (ticketUsable()) {
+      return tickets[msg.sender].expiration.sub(block.timestamp);
+    } else {
+      return 0;
+    }
+  }
+
   /*
   @dev Returns how long sec user get for paying ETH
   @param value the amount of ETH user pay
   */
-  function ticketRate(uint256 value) internal view returns (uint256) {
-
+  function ticketRate(uint256 value) public pure returns (uint256) {
     // For now, 0.01 ETH = 1 day.
-    uint a = 1 ether;
-    uint b = 60*60*24;
-    uint rate = a.mul(b);
-    return value.mul(rate);
+    uint a = 10 finney;
+    uint day = 1 days;
+    uint weiPerSec = a.div(day);
+    return value.div(weiPerSec);
+  }
+
+  function timestamp() public view returns (uint256) {
+    return block.timestamp;
   }
 }

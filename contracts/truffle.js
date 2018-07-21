@@ -2,9 +2,6 @@ const HDWallerProvider = require('truffle-hdwallet-provider');
 const mnemonic = process.env.RINKEBY_MNEMONIC;
 const accessToken = process.env.INFURA_ACCESS_TOKEN;
 
-console.log(`mnemonic is ${mnemonic}`);
-console.log(`accessToken is ${accessToken}`);
-
 module.exports = {
     migrations_directory: "./migrations",
     networks: {

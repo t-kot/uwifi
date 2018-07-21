@@ -1,3 +1,18 @@
+# Develop
+
+```
+$ truffle compile; truffle migrate --reset;
+$ truffle console
+
+> var uWifiCore;
+> UWifiCore.deployed().then(c => uWifiCore = c);
+> var bl = c => console.log(c.toNumber());
+> uWifiCore.ticketRate.call(web3.toWei(0.01, 'ether')).then(bl)
+> uWifiCore.buyTicket.sendTransaction({ value: web3.toWei(0.01, 'ether') });
+> uWifiCore.remainingTime.call().then(bl);
+```
+
+
 # Ideas not implemented
 
 - Create security or governance token. It is to change contract core logic (eg: payment token), and receives dividend from service.
