@@ -47,7 +47,9 @@ class Login extends Component {
     });
 
     uport.requestCredentials({
-      requested: ['name', 'avatar', 'phone', 'country'],
+      requested: ['name', 'phone', 'country'],
+      verified: ['uWifiTicket'],
+      notifications: true,
     }).then(credentials => {
       this.props.dispatch(userLoggedIn(credentials))
 
