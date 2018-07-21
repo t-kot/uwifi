@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "public": "build_webpack",
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
