@@ -30,7 +30,7 @@ class Login extends Component {
 
   componentDidMount() {
     const mb = new MobileDetect(window.navigator.userAgent);
-    if (mb.phone() === undefined) {
+    if (!mb.phone()) {
       this.requestCredentials();
     }
   }
