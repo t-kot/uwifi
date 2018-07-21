@@ -15,6 +15,7 @@ export function loginUser() {
     // Request uPort persona of account passed via QR
     uport.requestCredentials({
       verified: ['uWifiTicket'],
+      notifications: true,
     }).then((credentials) => {
       dispatch(userLoggedIn(credentials))
 
