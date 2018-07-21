@@ -53,7 +53,7 @@ class Login extends Component {
     }).then(credentials => {
       this.props.dispatch(userLoggedIn(credentials))
 
-      return browserHistory.push('/')
+      return browserHistory.push('/dashboard')
     });
   }
 
