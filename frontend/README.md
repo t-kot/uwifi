@@ -1,0 +1,5 @@
+# Deploy
+
+```
+$ bin/deploy
+```
