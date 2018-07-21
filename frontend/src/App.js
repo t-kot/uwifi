@@ -30,7 +30,7 @@ class App extends Component {
 
     const OnlyGuestLinks = HiddenOnlyAuth(() =>
       <span>
-        <LoginButtonContainer />
+        <Link className='login-link' to='/login'>Login</Link>
       </span>
     )
 

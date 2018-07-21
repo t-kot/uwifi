@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { uportSetting } from '../../util/connectors';
 import { Connect, SimpleSigner } from 'uport-connect'
+import './Login.css'
+
 const QRCode = require('qrcode.react');
 const qrcode = require('qrcode-terminal');
 
@@ -35,7 +37,7 @@ class Login extends Component {
 
   render() {
     return (
-      <main className="container">
+      <main className="container login-container">
         <div className="pure-g">
           <div className="pure-u-1-1">
             <h1>uWifiへようこそ</h1>
@@ -45,11 +47,13 @@ class Login extends Component {
               uPortでログインしてチケットを購入することで、uWifiのアクセスポイントに簡単につなげることができます。
             </p>
 
-            {(() => {
-              if (this.state.uportURI.length) {
-                return <QRCode value={this.state.uportURI} />;
-              }
-            })()}
+            <div className='qrcode'>
+              {(() => {
+                if (this.state.uportURI.length) {
+                  return <QRCode value={this.state.uportURI} size={200} />;
+                }
+              })()}
+            </div>
 
             <div className='login-button'>
               <a className="button-success pure-button button-lg" href={this.state.uportURI}>
