@@ -1,5 +1,16 @@
 # Develop
 
+## .bash_profile
+
+```
+export RINKEBY_MNEMONIC='teacher school ...';
+export INFURA_ACCESS_TOKEN='aaaa';
+```
+
+## Local
+
+Recommend to use Ganache.app
+
 ```
 $ truffle compile; truffle migrate --reset;
 $ truffle console
@@ -10,6 +21,12 @@ $ truffle console
 > uWifiCore.ticketRate.call(web3.toWei(0.01, 'ether')).then(bl)
 > uWifiCore.buyTicket.sendTransaction({ value: web3.toWei(0.01, 'ether') });
 > uWifiCore.remainingTime.call().then(bl);
+```
+
+## Deploy
+
+```
+$ truffle compile; truffle migrate --reset network rinkeby
 ```
 
 
