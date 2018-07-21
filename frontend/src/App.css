@@ -2,11 +2,11 @@
 
 body,
 .pure-g [class*=pure-u] {
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Rounded Mplus 1c";
 }
 
 h1, h2, h3 {
-  font-family: 'Oswald', 'Arial Narrow', sans-serif;
+  font-family: "Rounded Mplus 1c";
 }
 
 pre {
@@ -39,8 +39,8 @@ pre {
 .navbar {
   position: fixed;
   padding: 5px;
-  background: #0c1a2b;
-  font-family: 'Oswald', 'Arial Narrow', sans-serif;
+  background: #00BCD4;
+  font-family: "Rounded Mplus 1c";
 }
 
 .navbar a {

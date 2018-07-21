@@ -5,12 +5,14 @@ import { HiddenOnlyAuth, VisibleOnlyAuth } from './util/wrappers.js'
 // UI Components
 import LoginButtonContainer from './user/ui/loginbutton/LoginButtonContainer'
 import LogoutButtonContainer from './user/ui/logoutbutton/LogoutButtonContainer'
+import uportLogo from '../src/img/logo-white.png'
 
 // Styles
 import './css/oswald.css'
 import './css/open-sans.css'
 import './css/pure-min.css'
 import './App.css'
+import { uport } from './util/connectors.js';
 
 class App extends Component {
   render() {
@@ -35,7 +37,9 @@ class App extends Component {
     return (
       <div className="App">
         <nav className="navbar pure-menu pure-menu-horizontal">
-          <Link to="/" className="pure-menu-heading pure-menu-link">uWifi</Link>
+          <Link to="/" className="pure-menu-heading pure-menu-link">
+            <img src={uportLogo} width={50} alt=''/>
+          </Link>
           <ul className="pure-menu-list navbar-right">
             <OnlyGuestLinks />
             <OnlyAuthLinks />
