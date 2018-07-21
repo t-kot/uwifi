@@ -1,3 +1,4 @@
+
 import { Connect, SimpleSigner } from 'uport-connect'
 
 export let uport = new Connect('uWifi', {
