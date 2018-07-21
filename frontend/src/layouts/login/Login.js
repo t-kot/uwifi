@@ -6,6 +6,7 @@ import { connect } from 'react-redux'
 import './Login.css'
 import '../../user/ui/loginbutton/LoginButtonActions';
 import { userLoggedIn } from '../../user/ui/loginbutton/LoginButtonActions';
+import MobileDetect from 'mobile-detect';
 
 const QRCode = require('qrcode.react');
 
@@ -19,6 +20,8 @@ class Login extends Component {
     };
 
     this.urlHandler = this.urlHandler.bind(this);
+    this.requestCredentials = this.requestCredentials.bind(this);
+    this.onRequestCredentials = this.onRequestCredentials.bind(this);
   }
 
   urlHandler(uri) {
@@ -26,6 +29,18 @@ class Login extends Component {
   }
 
   componentDidMount() {
+    const mb = new MobileDetect(window.navigator.userAgent);
+    if (mb.phone() === undefined) {
+      this.requestCredentials();
+    }
+  }
+
+  onRequestCredentials(e) {
+    e.preventDefault();
+    this.requestCredentials();
+  }
+
+  requestCredentials() {
     const uport = new Connect('uWifi', {
       ...uportSetting,
       uriHandler: this.urlHandler,
@@ -61,7 +76,11 @@ class Login extends Component {
             </div>
 
             <div className='login-button'>
-              <a className="button-success pure-button button-lg" href={this.state.uportURI}>
+              <a
+                className="button-success pure-button button-lg"
+                href={this.state.uportURI}
+                onClick={this.onRequestCredentials}
+              >
                 uPortで認証する
               </a>
             </div>
