@@ -106,10 +106,30 @@ pre {
 }
 
 .remaining {
-  font-size: 2.5rem;
+  font-size: 3.5rem;
   font-weight: bold;
+  text-align: center;
+}
+
+.remaining .note {
+  color: rgb(39, 174, 96);
+  font-size: 1rem;
 }
 
 .buysec-select {
-  font-size: 2rem;
+  font-size: 2.5rem;
+}
+
+.ticketBuyForm {
+  text-align: center;
+}
+
+.extend {
+  text-align: center;
+}
+
+.ticketBuyForm .submit-btn {
+  font-size: 1.4rem;
+  line-height: 40px;
+  vertical-align: top;
 }

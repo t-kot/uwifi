@@ -112,29 +112,31 @@ class Dashboard extends Component {
     let ticketNode;
 
     const ticketBuyForm = (
-      <form onSubmit={this.buyTicket}>
-        <select value={this.state.buySec} className='pure-input-1-2 buysec-select' onChange={this.handleBuySecChange}>
-          <option value={10800}>3時間</option>
-          <option value={21600}>6時間</option>
-          <option value={43200}>12時間</option>
-          <option value={86400}>24時間</option>
-        </select>
-        <input type='submit' className="pure-button pure-button-primary" value='購入' />
-        <p className='small'>{this.formatWeiAsEther(this.weiCostForSec(this.state.buySec), 3)}ETH</p>
-      </form>
+        <form className='ticketBuyForm' onSubmit={this.buyTicket}>
+            <select value={this.state.buySec} className='pure-input-1-2 buysec-select' onChange={this.handleBuySecChange}>
+                <option value={10800}>3時間</option>
+                <option value={21600}>6時間</option>
+                <option value={43200}>12時間</option>
+                <option value={86400}>24時間</option>
+            </select>
+            <input type='submit' className="submit-btn pure-button pure-button-primary" value='購入' />
+            <p className='small'>
+              必要なETH: {this.formatWeiAsEther(this.weiCostForSec(this.state.buySec), 3)}ETH
+              現在の残高: {this.formatWeiAsEther(this.state.balance)}ETH
+            </p>
+        </form>
     );
-
     if (ticket.loading) {
       ticketNode = <p>Loading...</p>
     } else if (ticket.remaining > 0) {
       ticketNode = (
         <div>
-          <p style={{ color: '#27ae60' }}>残り時間</p>
-          <p className='remaining'>
+          <div className='remaining'>
+            <p className='note'>残り時間</p>
             {formatTime(ticket.remaining)}
-          </p>
+          </div>
 
-          <p className='extend'>延長する</p>
+          <h2 className='extend'>延長する</h2>
           {ticketBuyForm}
         </div>
       )
@@ -150,11 +152,6 @@ class Dashboard extends Component {
       <main className="container">
         <div className="pure-g">
           <div className="pure-u-1-1">
-            現在のETH残高
-            <p>{this.formatWeiAsEther(this.state.balance)}ETH</p>
-          </div>
-          <div className="pure-u-1-1">
-            <h1>Tickets</h1>
             {ticketNode}
           </div>
         </div>
