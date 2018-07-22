@@ -104,3 +104,12 @@ pre {
   line-height: 2.3rem;
   text-decoration: none;
 }
+
+.remaining {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.buysec-select {
+  font-size: 2rem;
+}

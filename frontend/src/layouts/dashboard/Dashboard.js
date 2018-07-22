@@ -55,6 +55,7 @@ class Dashboard extends Component {
     console.log('decoded', MNID.decode(this.props.authData.address))
 
     this.buyTicket = this.buyTicket.bind(this)
+    this.handleBuySecChange = this.handleBuySecChange.bind(this)
 
     this.state = {
       ticket: {
@@ -62,6 +63,7 @@ class Dashboard extends Component {
         remaining: 0,
       },
       balance: 0,
+      buySec: 10800,
     }
     this.contract = prepareContract()
 
@@ -100,24 +102,48 @@ class Dashboard extends Component {
     this.setState(newState)
   }
 
+  handleBuySecChange(e) {
+    this.setState({ ...this.setState, buySec: e.target.value })
+  }
+
   render() {
     const { ticket } = this.state
     console.log(this.state)
     let ticketNode;
+
+    const TicketBuyForm = () => {
+        return (
+            <form onSubmit={this.buyTicket}>
+                <select value={this.state.buySec} className='pure-input-1-2 buysec-select' onChange={this.handleBuySecChange}>
+                    <option value={10800}>3時間</option>
+                    <option value={21600}>6時間</option>
+                    <option value={43200}>12時間</option>
+                    <option value={86400}>24時間</option>
+                </select>
+                <input type='submit' className="pure-button pure-button-primary" value='購入' />
+                <p className='small'>{this.formatWeiAsEther(this.weiCostForSec(this.state.buySec), 3)}ETH</p>
+            </form>
+        );
+    };
     if (ticket.loading) {
       ticketNode = <p>Loading...</p>
     } else if (ticket.remaining > 0) {
       ticketNode = (
         <div>
-          <p style={{ color: '#27ae60' }}>You already have a permission for accessing to network</p>
-          <p>Remaining: {formatTime(ticket.remaining)}</p>
+          <p style={{ color: '#27ae60' }}>残り時間</p>
+          <p className='remaining'>
+            {formatTime(ticket.remaining)}
+          </p>
+
+          <p className='extend'>延長する</p>
+          <TicketBuyForm />
         </div>
       )
     } else {
       ticketNode = (
         <div>
-          <p style={{ color: '#c0392b' }}>You do not have permission.</p>
-          <button className="pure-button pure-button-primary" onClick={() => this.buyTicket()}>Buy Ticket (0.00002 ETH for 172 sec)</button>
+          <p style={{ color: '#c0392b' }}>利用するためには先に時間を購入してください。</p>
+          <TicketBuyForm />
         </div>
       )
     }
@@ -125,11 +151,8 @@ class Dashboard extends Component {
       <main className="container">
         <div className="pure-g">
           <div className="pure-u-1-1">
-            <h1>チケット画面</h1>
-
             現在のETH残高
             <p>{this.formatWeiAsEther(this.state.balance)}ETH</p>
-            <p><strong>Congratulations {this.props.authData.name}!</strong> If you're seeing this page, you've logged in with UPort successfully.</p>
           </div>
           <div className="pure-u-1-1">
             <h1>Tickets</h1>
@@ -140,9 +163,11 @@ class Dashboard extends Component {
     )
   }
 
-  async buyTicket() {
+  async buyTicket(e) {
+    e.preventDefault();
     console.log('will buy ticket')
-    const txHash = await promisify(this.contract.buyTicket)({ value: web3.toWei(0.00002) })
+    const value = this.weiCostForSec(this.state.buySec);
+    const txHash = await promisify(this.contract.buyTicket)({ value })
     console.log(txHash)
 
     {
@@ -165,9 +190,15 @@ class Dashboard extends Component {
     )
   }
 
-  formatWeiAsEther(wei) {
+  formatWeiAsEther(wei, n=2) {
       const ether = web3.fromWei(wei, 'ether');
-      return parseFloat(ether).toFixed(2);
+      return parseFloat(ether).toFixed(n);
+  }
+
+  // n秒買うときにかかるweiを返す
+  weiCostForSec(n) {
+    const weiPerSec = web3.toWei(0.01, 'ether') / 86400;
+    return weiPerSec * n;
   }
 }
 
