@@ -40,6 +40,7 @@ class Dashboard extends Component {
     super(props)
     authData = this.props
     console.log(authData);
+    const decodedAddress = MNID.decode(this.props.authData.address);
     console.log('decoded', MNID.decode(this.props.authData.address))
 
     this.buyTicket = this.buyTicket.bind(this)
@@ -51,8 +52,20 @@ class Dashboard extends Component {
         usable: false,
       },
       tickets,
+      balance: 0,
     }
     this.contract = prepareContract()
+
+    web3.eth.getBalance(decodedAddress.address, (err, balance) => {
+        if (err) {
+            console.err(err);
+        } else {
+            this.setState({
+                ...this.state,
+                balance,
+            });
+        }
+    });
   }
 
   componentDidMount() {
@@ -87,7 +100,10 @@ class Dashboard extends Component {
       <main className="container">
         <div className="pure-g">
           <div className="pure-u-1-1">
-            <h1>Dashboard</h1>
+            <h1>チケット画面</h1>
+
+            現在のETH残高
+            <p>{this.formatWeiAsEther(this.state.balance)}ETH</p>
             <p><strong>Congratulations {this.props.authData.name}!</strong> If you're seeing this page, you've logged in with UPort successfully.</p>
           </div>
           <div className="pure-u-1-1">
@@ -114,6 +130,11 @@ class Dashboard extends Component {
         },
       )
     })
+  }
+
+  formatWeiAsEther(wei) {
+      const ether = web3.fromWei(wei, 'ether');
+      return parseFloat(ether).toFixed(2);
   }
 }
 
