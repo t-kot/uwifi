@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import * as MNID from 'mnid';
 import { uport, web3 } from '../../util/connectors';
 import { abi, addressLocation } from '../../contract';
+import promisify from 'util.promisify'
 
 function formatEpoch(epoch) {
   const d = new Date(epoch * 1000);
@@ -50,6 +51,7 @@ class Dashboard extends Component {
       ticket: {
         loading: true,
         usable: false,
+        remaining: 0,
       },
       tickets,
       balance: 0,
@@ -69,16 +71,21 @@ class Dashboard extends Component {
   }
 
   componentDidMount() {
-    this.contract.ticketUsable({}, (err, res) => {
-      console.log('ticketUsable', res)
-      const newState = Object.assign({}, this.state, {
-        ticket: {
-          loading: false,
-          usable: res,
-        }
-      })
-      this.setState(newState)
-    })
+    this.loadStatus()
+  }
+
+  async loadStatus() {
+    const [usable, remaining] = await Promise.all([
+      promisify(this.contract.ticketUsable.call)(),
+      promisify(this.contract.remainingTime.call)(),
+    ])
+
+    console.log('ticketUsable', usable)
+    console.log('remainingTime', remaining)
+    const { ticket } = this.state
+    const newTicket = Object.assign({}, ticket, { loading: false, usable, remaining })
+    const newState = Object.assign({}, this.state, { ticket: newTicket })
+    this.setState(newState)
   }
 
   render() {
@@ -122,11 +129,12 @@ class Dashboard extends Component {
       waitForMined(
         txHash,
         { blockNumber: null }, 
-        function () {
+        () => {
           console.log('pending')
         },
-        function () {
+        () => {
           console.log('success')
+          this.loadStatus()
         },
       )
     })
