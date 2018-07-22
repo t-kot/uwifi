@@ -15,6 +15,8 @@ contract UWifiCore {
   // For now, supposing user has 1 ticket.
   // We think it's good for user to have a variable tickets in future.
   mapping(address => Ticket) public tickets;
+  // For debug
+  address public lastBuyer;
 
   /*
     buyTicket by ETH.
@@ -22,6 +24,8 @@ contract UWifiCore {
     need more consideration.
   */
   function buyTicket() public payable {
+    lastBuyer = msg.sender;
+
     if (ticketUsable()) {
       extendTicket();
     } else {
@@ -70,5 +74,13 @@ contract UWifiCore {
   */
   function clearMyTicket() public {
     tickets[msg.sender].expiration = 0;
+  }
+
+  function getRemainingTimeForUser(address user) public view returns (uint256) {
+    if (tickets[user].expiration > block.timestamp) {
+      return tickets[user].expiration.sub(block.timestamp);
+    } else {
+      return 0;
+    }
   }
 }

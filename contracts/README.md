@@ -15,10 +15,11 @@ Recommend to use Ganache.app
 $ truffle compile; truffle migrate --reset;
 $ truffle console
 
-> var uWifiCore;
-> UWifiCore.deployed().then(c => uWifiCore = c);
+> var uWifiCore; UWifiCore.deployed().then(c => uWifiCore = c);
 > var bl = c => console.log(c.toNumber());
 > uWifiCore.buyTicket.sendTransaction({ value: web3.toWei(0.01, 'ether') });
+> uWifiCore.lastBuyer.call();
+> uWifiCore.getRemainingTimeForUser(....);
 > uWifiCore.remainingTime.call().then(bl);
 > uWifiCore.clearMyTicket.sendTransaction();
 ```
