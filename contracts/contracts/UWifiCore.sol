@@ -57,7 +57,7 @@ contract UWifiCore {
   @dev Returns how long sec user get for paying ETH
   @param value the amount of ETH user pay
   */
-  function ticketRate(uint256 value) public pure returns (uint256) {
+  function ticketRate(uint256 value) internal pure returns (uint256) {
     // For now, 0.01 ETH = 1 day.
     uint a = 10 finney;
     uint day = 1 days;
@@ -65,7 +65,10 @@ contract UWifiCore {
     return value.div(weiPerSec);
   }
 
-  function timestamp() public view returns (uint256) {
-    return block.timestamp;
+  /*
+  @dev for debug only
+  */
+  function clearMyTicket() public {
+    tickets[msg.sender].expiration = 0;
   }
 }
