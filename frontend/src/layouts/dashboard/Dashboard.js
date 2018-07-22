@@ -170,8 +170,7 @@ class Dashboard extends Component {
     const contractABI = uport.contract(abi)
     const contract = contractABI.at(addressLocation)
 
-    // const txHash = await promisify(contract.buyTicket)({ value })({ notifications: true })
-    contract.buyTicket({ value, notifications: true }).then((err, txHash) => {
+    contract.buyTicket({ value }).then((err, txHash) => {
       console.log(txHash)
 
       {
