@@ -4,9 +4,19 @@ import { uport, web3 } from '../../util/connectors';
 import { abi, addressLocation } from '../../contract';
 import promisify from 'util.promisify'
 
-function formatEpoch(epoch) {
-  const d = new Date(epoch * 1000);
-  return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${d.getMinutes()}`;
+function padZero(n, len) {
+  let res = `${n}`
+  for (let i=res.length; i<len; i++) {
+    res = `0${res}`
+  }
+  return res
+}
+
+function formatTime(time) {
+  const sec = time % 60
+  const min = Math.floor(time / 60) % 60
+  const hour = Math.floor(time / 3600)
+  return `${hour}:${padZero(min, 2)}:${padZero(sec, 2)}`
 }
 
 function waitForMined(txHash, response, pendingCb, successCb) {
@@ -46,14 +56,11 @@ class Dashboard extends Component {
 
     this.buyTicket = this.buyTicket.bind(this)
 
-    const tickets = this.props.authData.verified.map(elem => elem.claim.uWifiTicket).filter(ticket => ticket != null)
     this.state = {
       ticket: {
         loading: true,
-        usable: false,
         remaining: 0,
       },
-      tickets,
       balance: 0,
     }
     this.contract = prepareContract()
@@ -72,33 +79,44 @@ class Dashboard extends Component {
 
   componentDidMount() {
     this.loadStatus()
+    window.setInterval(() => {
+      const { ticket } = this.state
+      if (ticket.remaining) {
+        const newTicket = Object.assign({}, ticket, { remaining: ticket.remaining - 1 })
+        const newState = Object.assign({}, this.state, { ticket: newTicket })
+        this.setState(newState)
+      }
+    }, 1000)
   }
 
   async loadStatus() {
-    const [usable, remaining] = await Promise.all([
-      promisify(this.contract.ticketUsable.call)(),
-      promisify(this.contract.remainingTime.call)(),
-    ])
+    const address = MNID.decode(this.props.authData.address).address
+    const remaining = (await promisify(this.contract.getRemainingTimeForUser.call)(address)).toNumber();
+    console.log('getRemainingTimeForUser', remaining);
 
-    console.log('ticketUsable', usable)
-    console.log('remainingTime', remaining)
     const { ticket } = this.state
-    const newTicket = Object.assign({}, ticket, { loading: false, usable, remaining })
+    const newTicket = Object.assign({}, ticket, { loading: false, remaining })
     const newState = Object.assign({}, this.state, { ticket: newTicket })
     this.setState(newState)
   }
 
   render() {
     const { ticket } = this.state
+    console.log(this.state)
     let ticketNode;
     if (ticket.loading) {
       ticketNode = <p>Loading...</p>
-    } else if (ticket.usable) {
-      ticketNode = <p>You already have a permission for accessing to network</p>
+    } else if (ticket.remaining > 0) {
+      ticketNode = (
+        <div>
+          <p style={{ color: '#27ae60' }}>You already have a permission for accessing to network</p>
+          <p>Remaining: {formatTime(ticket.remaining)}</p>
+        </div>
+      )
     } else {
       ticketNode = (
         <div>
-          <p>You do not have permission.</p>
+          <p style={{ color: '#c0392b' }}>You do not have permission.</p>
           <button className="pure-button pure-button-primary" onClick={() => this.buyTicket()}>Buy Ticket (0.01 ETH for 1 day)</button>
         </div>
       )
@@ -124,7 +142,7 @@ class Dashboard extends Component {
 
   async buyTicket() {
     console.log('will buy ticket')
-    const txHash = await promisify(this.contract.buyTicket)({ value: web3.toWei(0.00001) })
+    const txHash = await promisify(this.contract.buyTicket)({ value: web3.toWei(0.00002) })
     console.log(txHash)
 
     {
