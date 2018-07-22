@@ -111,20 +111,19 @@ class Dashboard extends Component {
     console.log(this.state)
     let ticketNode;
 
-    const TicketBuyForm = () => {
-        return (
-            <form onSubmit={this.buyTicket}>
-                <select value={this.state.buySec} className='pure-input-1-2 buysec-select' onChange={this.handleBuySecChange}>
-                    <option value={10800}>3時間</option>
-                    <option value={21600}>6時間</option>
-                    <option value={43200}>12時間</option>
-                    <option value={86400}>24時間</option>
-                </select>
-                <input type='submit' className="pure-button pure-button-primary" value='購入' />
-                <p className='small'>{this.formatWeiAsEther(this.weiCostForSec(this.state.buySec), 3)}ETH</p>
-            </form>
-        );
-    };
+    const ticketBuyForm = (
+      <form onSubmit={this.buyTicket}>
+        <select value={this.state.buySec} className='pure-input-1-2 buysec-select' onChange={this.handleBuySecChange}>
+          <option value={10800}>3時間</option>
+          <option value={21600}>6時間</option>
+          <option value={43200}>12時間</option>
+          <option value={86400}>24時間</option>
+        </select>
+        <input type='submit' className="pure-button pure-button-primary" value='購入' />
+        <p className='small'>{this.formatWeiAsEther(this.weiCostForSec(this.state.buySec), 3)}ETH</p>
+      </form>
+    );
+
     if (ticket.loading) {
       ticketNode = <p>Loading...</p>
     } else if (ticket.remaining > 0) {
@@ -136,14 +135,14 @@ class Dashboard extends Component {
           </p>
 
           <p className='extend'>延長する</p>
-          <TicketBuyForm />
+          {ticketBuyForm}
         </div>
       )
     } else {
       ticketNode = (
         <div>
           <p style={{ color: '#c0392b' }}>利用するためには先に時間を購入してください。</p>
-          <TicketBuyForm />
+          {ticketBuyForm}
         </div>
       )
     }
