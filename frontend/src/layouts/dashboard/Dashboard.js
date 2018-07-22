@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import * as MNID from 'mnid';
 import { uport, web3 } from '../../util/connectors';
 import { abi, addressLocation } from '../../contract';
-import promisify from 'util.promisify'
 
 function padZero(n, len) {
   let res = `${n}`
@@ -93,13 +92,15 @@ class Dashboard extends Component {
 
   async loadStatus() {
     const address = MNID.decode(this.props.authData.address).address
-    const remaining = (await promisify(this.contract.getRemainingTimeForUser.call)(address)).toNumber();
-    console.log('getRemainingTimeForUser', remaining);
-
-    const { ticket } = this.state
-    const newTicket = Object.assign({}, ticket, { loading: false, remaining })
-    const newState = Object.assign({}, this.state, { ticket: newTicket })
-    this.setState(newState)
+    this.contract.getRemainingTimeForUser.call(address, (err, remainingBignum) => {
+      const remaining = remainingBignum.toNumber()
+      console.log('getRemainingTimeForUser', remaining);
+  
+      const { ticket } = this.state
+      const newTicket = Object.assign({}, ticket, { loading: false, remaining })
+      const newState = Object.assign({}, this.state, { ticket: newTicket })
+      this.setState(newState)
+    })
   }
 
   handleBuySecChange(e) {
@@ -167,26 +168,26 @@ class Dashboard extends Component {
     const contractABI = web3.eth.contract(abi)
     const contract = contractABI.at(addressLocation)
 
-    const txHash = await promisify(contract.buyTicket)({ value })
-
-    {
-      const { ticket } = this.state
-      const newTicket = Object.assign({}, ticket, { loading: true })
-      const newState = Object.assign({}, this.state, { ticket: newTicket })
-      this.setState(newState)
-    }
-
-    waitForMined(
-      txHash,
-      { blockNumber: null }, 
-      () => {
-        console.log('pending')
-      },
-      () => {
-        console.log('success')
-        this.loadStatus()
-      },
-    )
+    contract.buyTicket({ value }, (err, txHash) => {
+      {
+        const { ticket } = this.state
+        const newTicket = Object.assign({}, ticket, { loading: true })
+        const newState = Object.assign({}, this.state, { ticket: newTicket })
+        this.setState(newState)
+      }
+  
+      waitForMined(
+        txHash,
+        { blockNumber: null }, 
+        () => {
+          console.log('pending')
+        },
+        () => {
+          console.log('success')
+          this.loadStatus()
+        },
+      )
+    })
   }
 
   formatWeiAsEther(wei, n=2) {
