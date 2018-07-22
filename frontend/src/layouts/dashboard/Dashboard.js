@@ -117,7 +117,7 @@ class Dashboard extends Component {
       ticketNode = (
         <div>
           <p style={{ color: '#c0392b' }}>You do not have permission.</p>
-          <button className="pure-button pure-button-primary" onClick={() => this.buyTicket()}>Buy Ticket (0.01 ETH for 1 day)</button>
+          <button className="pure-button pure-button-primary" onClick={() => this.buyTicket()}>Buy Ticket (0.00002 ETH for 172 sec)</button>
         </div>
       )
     }
