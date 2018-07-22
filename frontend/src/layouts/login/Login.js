@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { browserHistory } from 'react-router'
-import { uportSetting } from '../../util/connectors';
+import { uport, uportSetting } from '../../util/connectors';
 import { Connect, SimpleSigner } from 'uport-connect'
 import { connect } from 'react-redux'
 import './Login.css'
@@ -41,15 +41,10 @@ class Login extends Component {
   }
 
   requestCredentials() {
-    const uport = new Connect('uWifi', {
-      ...uportSetting,
-      uriHandler: this.urlHandler,
-    });
-
     uport.requestCredentials({
       requested: ['name', 'avatar', 'phone', 'country'],
       notifications: true,
-    }).then(credentials => {
+    }, this.urlHandler).then(credentials => {
       this.props.dispatch(userLoggedIn(credentials))
 
       return browserHistory.push('/dashboard')

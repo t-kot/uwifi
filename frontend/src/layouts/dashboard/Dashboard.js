@@ -163,8 +163,11 @@ class Dashboard extends Component {
     e.preventDefault();
     console.log('will buy ticket')
     const value = this.weiCostForSec(this.state.buySec);
-    const txHash = await promisify(this.contract.buyTicket)({ value })
-    console.log(txHash)
+
+    const contractABI = web3.eth.contract(abi)
+    const contract = contractABI.at(addressLocation)
+
+    const txHash = await promisify(contract.buyTicket)({ value })
 
     {
       const { ticket } = this.state
