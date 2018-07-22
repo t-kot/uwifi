@@ -166,27 +166,34 @@ class Dashboard extends Component {
     e.preventDefault();
     console.log('will buy ticket')
     const value = this.weiCostForSec(this.state.buySec);
-    const txHash = await promisify(this.contract.buyTicket)({ value })
-    console.log(txHash)
 
-    {
-      const { ticket } = this.state
-      const newTicket = Object.assign({}, ticket, { loading: true })
-      const newState = Object.assign({}, this.state, { ticket: newTicket })
-      this.setState(newState)
-    }
+    const contractABI = uport.contract(abi)
+    const contract = contractABI.at(addressLocation)
 
-    waitForMined(
-      txHash,
-      { blockNumber: null }, 
-      () => {
-        console.log('pending')
-      },
-      () => {
-        console.log('success')
-        this.loadStatus()
-      },
-    )
+    // const txHash = await promisify(contract.buyTicket)({ value })({ notifications: true })
+    contract.buyTicket({ value, notifications: true }).then((err, txHash) => {
+      console.log(txHash)
+
+      {
+        const { ticket } = this.state
+        const newTicket = Object.assign({}, ticket, { loading: true })
+        const newState = Object.assign({}, this.state, { ticket: newTicket })
+        this.setState(newState)
+      }
+  
+      waitForMined(
+        txHash,
+        { blockNumber: null }, 
+        () => {
+          console.log('pending')
+        },
+        () => {
+          console.log('success')
+          this.loadStatus()
+        },
+      )
+    })
+
   }
 
   formatWeiAsEther(wei, n=2) {
