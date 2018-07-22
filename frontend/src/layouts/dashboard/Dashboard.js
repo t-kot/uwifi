@@ -122,22 +122,29 @@ class Dashboard extends Component {
     )
   }
 
-  buyTicket() {
+  async buyTicket() {
     console.log('will buy ticket')
-    this.contract.buyTicket({ value: web3.toWei(0.0001) }, (err, txHash) => {
-      console.log(txHash)
-      waitForMined(
-        txHash,
-        { blockNumber: null }, 
-        () => {
-          console.log('pending')
-        },
-        () => {
-          console.log('success')
-          this.loadStatus()
-        },
-      )
-    })
+    const txHash = await promisify(this.contract.buyTicket)({ value: web3.toWei(0.00001) })
+    console.log(txHash)
+
+    {
+      const { ticket } = this.state
+      const newTicket = Object.assign({}, ticket, { loading: true })
+      const newState = Object.assign({}, this.state, { ticket: newTicket })
+      this.setState(newState)
+    }
+
+    waitForMined(
+      txHash,
+      { blockNumber: null }, 
+      () => {
+        console.log('pending')
+      },
+      () => {
+        console.log('success')
+        this.loadStatus()
+      },
+    )
   }
 
   formatWeiAsEther(wei) {
